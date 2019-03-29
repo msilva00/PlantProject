@@ -98,3 +98,35 @@ tmp_df01 <- data.frame(cbind(lonlat,tmp_vec))
 names(tmp_df01) <- c("lon","lat",paste(dname,as.character(m), sep="_"))
 head(na.omit(tmp_df01), 15)
 
+# set path and filename
+csvpath <- "~/MasterProject/"
+csvname <- "cru_tmp_1.csv"
+csvfile <- paste(csvpath, csvname, sep="")
+write.table(na.omit(tmp_df01),csvfile, row.names=FALSE, sep=",")
+
+
+# reshape the array into vector
+tmp_vec_long <- as.vector(tmp_array)
+length(tmp_vec_long)
+
+# reshape the vector into a matrix
+tmp_mat <- matrix(tmp_vec_long, nrow=nlon*nlat, ncol=nt)
+dim(tmp_mat)
+
+head(na.omit(tmp_mat))
+
+# create a dataframe
+lonlat <- as.matrix(expand.grid(lon,lat))
+tmp_df02 <- data.frame(cbind(lonlat,tmp_mat))
+names(tmp_df02) <- c("lon","lat","tmpJan","tmpFeb","tmpMar","tmpApr","tmpMay","tmpJun",
+                     "tmpJul","tmpAug","tmpSep","tmpOct","tmpNov","tmpDec")
+# options(width=96)
+head(na.omit(tmp_df02, 20))
+
+# get the annual mean and MTWA and MTCO
+tmp_df02$mtwa <- apply(tmp_df02[3:14],1,max) # mtwa
+tmp_df02$mtco <- apply(tmp_df02[3:14],1,min) # mtco
+tmp_df02$mat <- apply(tmp_df02[3:14],1,mean) # annual (i.e. row) means
+head(na.omit(tmp_df02))
+
+
