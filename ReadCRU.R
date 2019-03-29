@@ -4,7 +4,8 @@ library(lattice)
 library(ncdf4)
 
 
-setwd("~/MasterProject/CRU_Datasets/")
+setwd("~/MasterProject/CRU_DatasetsYearly//")
+dname <- "tmp" 
 
 temp = list.files(pattern="*.nc")
 # Loop over files
@@ -52,7 +53,6 @@ history <- ncatt_get(ncin,0,"history")
 Conventions <- ncatt_get(ncin,0,"Conventions")
 
 
-ls()
 # load some packages
 library(chron)
 library(lattice)
@@ -100,7 +100,7 @@ head(na.omit(tmp_df01), 15)
 
 # set path and filename
 csvpath <- "~/MasterProject/"
-csvname <- "cru_tmp_1.csv"
+csvname <- "CRUfrNC.csv"
 csvfile <- paste(csvpath, csvname, sep="")
 write.table(na.omit(tmp_df01),csvfile, row.names=FALSE, sep=",")
 
@@ -129,4 +129,9 @@ tmp_df02$mtco <- apply(tmp_df02[3:14],1,min) # mtco
 tmp_df02$mat <- apply(tmp_df02[3:14],1,mean) # annual (i.e. row) means
 head(na.omit(tmp_df02))
 
+dim(na.omit(tmp_df02))
 
+# write out the dataframe as a .csv file
+csvname <- "cru_tmp_2.csv"
+csvfile <- paste(csvpath, csvname, sep="")
+write.table(na.omit(tmp_df02),csvfile, row.names=FALSE, sep=",")
