@@ -1,0 +1,108 @@
+---
+title: "Temperature Data"
+author: "Mary Silva, Diana Gerardo"
+date: "4/4/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+library(chron)
+library(RColorBrewer)
+library(lattice)
+library(ncdf4)
+library(knitr)    # For knitting document and include_graphics function
+library(ggplot2)  # For plotting
+library(png)      # For grabbing the dimensions of png files
+
+setwd("~/PlantProject/CRU_DatasetsYearly//")
+dname <- "tmp"
+
+temp = list.files(pattern="*.nc")
+ncin = nc_open(temp[1])
+
+```
+
+```{r}
+# Get longitude values
+lon <- ncvar_get(ncin,"lon")
+nlon <- dim(lon)
+
+# Get latitude values
+lat <- ncvar_get(ncin,"lat")
+nlat <- dim(lat)
+
+# get time
+time <- ncvar_get(ncin,"time")
+tunits <- ncatt_get(ncin,"time","units")
+
+# get temperature
+tmp_array <- ncvar_get(ncin,dname)
+dlname <- ncatt_get(ncin,dname,"long_name")
+dunits <- ncatt_get(ncin,dname,"units")
+fillvalue <- ncatt_get(ncin,dname,"_FillValue")
+
+# get global attributes
+title <- ncatt_get(ncin,0,"title")
+institution <- ncatt_get(ncin,0,"institution")
+datasource <- ncatt_get(ncin,0,"source")
+references <- ncatt_get(ncin,0,"references")
+history <- ncatt_get(ncin,0,"history")
+Conventions <- ncatt_get(ncin,0,"Conventions")
+
+# convert time -- split the time units string into fields
+tustr <- strsplit(tunits$value, " ")
+tdstr <- strsplit(unlist(tustr)[3], "-")
+tmonth <- as.integer(unlist(tdstr)[2])
+tday <- as.integer(unlist(tdstr)[3])
+tyear <- as.integer(unlist(tdstr)[1])
+chron(time,origin=c(tmonth, tday, tyear))
+
+```
+
+![Alt text](/Users/marysilva/PlantProject/ca-nv.png)
+
+```{r}
+# replace netCDF fill values with NA's
+tmp_array[tmp_array==fillvalue$value] <- NA
+
+# length(na.omit(as.vector(tmp_array[,,1])))
+
+# get a single slice or layer (January)
+m <- 1
+tmp_slice <- tmp_array[,,m]
+
+# quick map
+image(lon,lat,tmp_slice, col=rev(brewer.pal(11,"RdBu")))
+
+# levelplot of the slice
+grid <- expand.grid(lon=lon, lat=lat)
+cutpts <- c(-40,-30,-20,-10,0,10,20,30,40)
+levelplot(tmp_slice ~ lon * lat, data=grid, at=cutpts, cuts=11, pretty=T, 
+          col.regions=(rev(brewer.pal(11,"RdBu"))))
+
+```
+
+
+```{r, echo=F, include=F}
+
+# create dataframe -- reshape data
+# matrix (nlon*nlat rows by 2 cols) of lons and lats
+lonlat <- as.matrix(expand.grid(lon,lat))
+dim(lonlat)
+
+# vector of `tmp` values
+tmp_vec <- as.vector(tmp_slice)
+length(tmp_vec)
+
+# create dataframe and add names
+tmp_df01 <- data.frame(cbind(lonlat,tmp_vec))
+names(tmp_df01) <- c("lon","lat",paste(dname,as.character(m), sep="_"))
+head(na.omit(tmp_df01), 15)
+
+# set path and filename
+csvpath <- "~/PlantProject/"
+csvname <- "CRUfrNC.csv"
+csvfile <- paste(csvpath, csvname, sep="")
+write.table(na.omit(tmp_df01),csvfile, row.names=FALSE, sep=",")
+
+```
