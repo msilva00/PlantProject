@@ -4,7 +4,7 @@ library(lattice)
 library(ncdf4)
 
 
-setwd("~/MasterProject/CRU_DatasetsYearly//")
+setwd("~/PlantProject/CRU_DatasetsYearly//")
 dname <- "tmp" 
 
 temp = list.files(pattern="*.nc")
@@ -12,6 +12,7 @@ temp = list.files(pattern="*.nc")
 for(i in seq_along(temp)) {
   ncin = nc_open(temp[i])
 }
+ncin = nc_open(temp[100])
 
 # open a NetCDF file
 print(ncin)
@@ -52,12 +53,6 @@ references <- ncatt_get(ncin,0,"references")
 history <- ncatt_get(ncin,0,"history")
 Conventions <- ncatt_get(ncin,0,"Conventions")
 
-
-# load some packages
-library(chron)
-library(lattice)
-library(RColorBrewer)
-
 # convert time -- split the time units string into fields
 tustr <- strsplit(tunits$value, " ")
 tdstr <- strsplit(unlist(tustr)[3], "-")
@@ -72,17 +67,17 @@ tmp_array[tmp_array==fillvalue$value] <- NA
 length(na.omit(as.vector(tmp_array[,,1])))
 
 # get a single slice or layer (January)
-m <- 1
+m <- 11
 tmp_slice <- tmp_array[,,m]
 
 # quick map
-image(lon,lat,tmp_slice, col=rev(brewer.pal(10,"RdBu")))
+image(lon,lat,tmp_slice, col=rev(brewer.pal(11,"RdBu")))
 
 # levelplot of the slice
 grid <- expand.grid(lon=lon, lat=lat)
-cutpts <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50)
+cutpts <- c(-40,-30,-20,-10,0,10,20,30,40)
 levelplot(tmp_slice ~ lon * lat, data=grid, at=cutpts, cuts=11, pretty=T, 
-          col.regions=(rev(brewer.pal(10,"RdBu"))))
+          col.regions=(rev(brewer.pal(11,"RdBu"))))
 
 # create dataframe -- reshape data
 # matrix (nlon*nlat rows by 2 cols) of lons and lats
@@ -99,7 +94,7 @@ names(tmp_df01) <- c("lon","lat",paste(dname,as.character(m), sep="_"))
 head(na.omit(tmp_df01), 15)
 
 # set path and filename
-csvpath <- "~/MasterProject/"
+csvpath <- "~/PlantProject/"
 csvname <- "CRUfrNC.csv"
 csvfile <- paste(csvpath, csvname, sep="")
 write.table(na.omit(tmp_df01),csvfile, row.names=FALSE, sep=",")
