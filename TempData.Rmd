@@ -61,7 +61,7 @@ chron(time,origin=c(tmonth, tday, tyear))
 
 ![Coordinates for CA and Nevada](/Users/marysilva/PlantProject/ca-nv.png)
 
-### Temperature data for one year
+### Temperature data for 2017
 
 We get a single layer of the NetCDF files from the month of January for this year.
 
