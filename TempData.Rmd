@@ -18,7 +18,7 @@ setwd("~/PlantProject/CRU_DatasetsYearly//")
 dname <- "tmp"
 
 temp = list.files(pattern="*.nc")
-ncin = nc_open(temp[1])
+ncin = nc_open(temp[117])
 
 ```
 
@@ -59,9 +59,13 @@ chron(time,origin=c(tmonth, tday, tyear))
 
 ```
 
-![Alt text](/Users/marysilva/PlantProject/ca-nv.png)
+![Coordinates for CA and Nevada](/Users/marysilva/PlantProject/ca-nv.png)
 
-```{r}
+### Temperature data for one year
+
+We get a single layer of the NetCDF files from the month of January for this year.
+
+```{r, echo=F}
 # replace netCDF fill values with NA's
 tmp_array[tmp_array==fillvalue$value] <- NA
 
@@ -74,6 +78,10 @@ tmp_slice <- tmp_array[,,m]
 # quick map
 image(lon,lat,tmp_slice, col=rev(brewer.pal(11,"RdBu")))
 
+
+```
+
+```{r, echo=F}
 # levelplot of the slice
 grid <- expand.grid(lon=lon, lat=lat)
 cutpts <- c(-40,-30,-20,-10,0,10,20,30,40)

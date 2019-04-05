@@ -67,7 +67,7 @@ tmp_array[tmp_array==fillvalue$value] <- NA
 length(na.omit(as.vector(tmp_array[,,1])))
 
 # get a single slice or layer (January)
-m <- 11
+m <- 1
 tmp_slice <- tmp_array[,,m]
 
 # quick map
